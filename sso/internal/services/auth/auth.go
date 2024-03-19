@@ -12,3 +12,7 @@ type UserStorage interface {
 type UserProvider interface {
 	User(ctx context.Context, email string) (models.User, error)
 }
+
+type AppProvider interface {
+	App(ctx context.Context, appID int) (models.App, error)
+}
