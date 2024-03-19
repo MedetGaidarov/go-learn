@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"go-learn/sso/internal/domain/models"
+	"go-learn/sso/internal/lib/jwt"
 	"go-learn/sso/internal/lib/logger/sl"
 	"log/slog"
 	"time"
@@ -118,4 +119,48 @@ func (a *Auth) Login(
 
 	log.Info("attempting to login user")
 
+	// Достаём пользователя из БД
+
+	user, err := a.usrProvider.User(ctx, email)
+
+	if err != nil {
+		if errors.Is(err, storage.ErrUserNotFound) {
+			a.log.Warn("user not found", sl.Err(err))
+
+			return "", fmt.Errorf("%s %w", op, ErrInvalidCredentials)
+		}
+
+		a.log.Error("failed to get user", sl.Err(err))
+
+		return "", fmt.Errorf("%s : %w", op, err)
+	}
+
+	// Проверяем корректность полученного пароля
+
+	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(pasword)); err != nil {
+		a.log.Info("invalid credentials", sl.Err(err))
+
+		return "", fmt.Errorf("%s : %w", op, ErrInvalidCredentials)
+	}
+
+	// Получаем информацию о приложении
+
+	app, err := a.appProvider.App(ctx, appID)
+	if err != nil {
+		return "", fmt.Errorf("%s : %w", op, err)
+	}
+
+	log.Info("user logged in successfully")
+
+	// Создаём токен авторизации
+
+	token, err := jwt.NewToken(user, app, a.tokenTTL)
+	if err != nil {
+		a.log.Error("failed to generate token", sl.Err(err))
+
+		return "", fmt.Errorf("%s : %w", op, err)
+
+	}
+
+	return token, nil
 }
