@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"go-learn/sso/internal/domain/models"
 	"go-learn/sso/internal/lib/logger/sl"
@@ -9,6 +10,10 @@ import (
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	ErrInvalidCredentials = errors.New("invalid credentials")
 )
 
 type UserStorage interface {
@@ -92,4 +97,25 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (
 	}
 
 	return id, nil
+}
+
+// Login checks if user with given credentials exists in the system and returns access token.
+// If user exists, but password is incorrect, returns error.
+// If user doesn't exist, returns error.
+func (a *Auth) Login(
+	ctx context.Context,
+	email string,
+	pasword string,
+	appID int,
+) (string, error) {
+	const op = "Auth.Login"
+
+	log := a.log.With(
+		slog.String("op", op),
+		slog.String("username", email),
+		// password либо не логируем, либо логируем в замаскированном виде
+	)
+
+	log.Info("attempting to login user")
+
 }
