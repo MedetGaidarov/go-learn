@@ -1,9 +1,9 @@
 package main
 
-import 
+import (
 "log/slog"
 "go-learn/sso/internal/config"
-
+)
 
 const (
 	envLocal = "local"
