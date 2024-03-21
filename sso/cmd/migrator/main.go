@@ -43,6 +43,8 @@ func main() {
 		"file://"+migrationsPath,
 		fmt.Sprintf("sqlite3://%s?x-migrations-table=%s", storagePath, migrationsTable),
 	)
+	fmt.Println("file://" + migrationsPath)
+	fmt.Printf("sqlite3://%s?x-migrations-table=%s", storagePath, migrationsTable)
 
 	if err != nil {
 		panic(err)

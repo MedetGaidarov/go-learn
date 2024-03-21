@@ -1,8 +1,9 @@
 package main
 
 import (
-"log/slog"
-"go-learn/sso/internal/config"
+	"go-learn/sso/internal/config"
+	"log/slog"
+	"os"
 )
 
 const (
@@ -22,25 +23,23 @@ func main() {
 	// TODO: запустить gRPC-сервер приложения
 }
 
-func setupLogger() *slog.Logger { 
+func setupLogger(env string) *slog.Logger {
 	var log *slog.Logger
 
-	switch env { 
-     case envLocal:
-        log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug})
+	switch env {
+	case envLocal:
+		log = slog.New(
+			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
 		)
-	case envDev: 
-	    log = slog.New(
-            slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug})
-        )
+	case envDev:
+		log = slog.New(
+			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+		)
 	case envProd:
 		log = slog.New(
-            slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug})
-        )
+			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+		)
 	}
-	return log 
+	return log
 
 }
-
-
